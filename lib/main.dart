@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'fullscreen_demo.dart';
+import 'calendar_list.dart';
 
 void main() => runApp(new MyApp());
 
@@ -24,33 +24,14 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  List<DateTime> selectResult1 = <DateTime>[];
-  List<DateTime> selectResult2 = <DateTime>[];
+class _MyHomePageState extends State<MyHomePage>
+    with TickerProviderStateMixin<MyHomePage> {
+  TabController con;
 
-  // 全屏方式
-  _navigateFullScreenDemo(BuildContext context) async {
-    selectResult1 = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => FullScreenDemo()),
-    );
-  }
-
-  // Dialog方式
-  _navigateDailogDemo(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 600.0,
-          child: FullScreenDemo(),
-        );
-      },
-    ).then((result) {
-      setState(() {
-        selectResult2 = result;
-      });
-    });
+  @override
+  void initState() {
+    con = TabController(length: 3, vsync: this);
+    super.initState();
   }
 
   @override
@@ -59,30 +40,55 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text("列表型日历"),
       ),
-      body: Center(
-        child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            FlatButton(
-              child: Text('全屏日历'),
-              onPressed: () {
-                _navigateFullScreenDemo(context);
+      body: Column(
+        children: [
+          TabBar(
+            controller: con,
+            tabs: ["单选", "多选", "范围选择"].map((e) {
+              return Tab(
+                text: e,
+              );
+            }).toList(),
+            labelColor: Colors.blue,
+            unselectedLabelColor: Colors.black45,
+          ),
+          Expanded(
+              child: TabBarView(controller: con, children: [
+            CalendarList(
+              weekendColor: Colors.amber,
+              selectedType: CalendarSelectedType.Single,
+              firstDate: DateTime(2020, 8),
+              lastDate: DateTime(2021, 12),
+              onSelectFinish: (List<DateTime> dates) {
+                List<DateTime> result = <DateTime>[];
+                result.addAll(dates);
+                print("单选中日期$result");
               },
             ),
-            Text(
-              selectResult1.toString(),
-            ),
-            FlatButton(
-              child: Text('弹出框日历'),
-              onPressed: () {
-                _navigateDailogDemo(context);
+            CalendarList(
+              weekendColor: Colors.amber,
+              selectedType: CalendarSelectedType.Multiply,
+              firstDate: DateTime(2020, 8),
+              lastDate: DateTime(2021, 12),
+              onSelectFinish: (List<DateTime> dates) {
+                List<DateTime> result = <DateTime>[];
+                result.addAll(dates);
+                print("多选中日期$result");
               },
             ),
-            Text(
-              selectResult2.toString(),
-            ),
-          ],
-        ),
+            CalendarList(
+              weekendColor: Colors.amber,
+              selectedType: CalendarSelectedType.Range,
+              firstDate: DateTime(2020, 8),
+              lastDate: DateTime(2021, 12),
+              onSelectFinish: (List<DateTime> dates) {
+                List<DateTime> result = <DateTime>[];
+                result.addAll(dates);
+                print("范围选择日期$result");
+              },
+            )
+          ]))
+        ],
       ),
     );
   }
