@@ -5,7 +5,14 @@ import 'package:flutter/material.dart';
 import 'month_view.dart';
 import 'weekday_row.dart';
 
-enum CalendarSelectedType { Single, Multiply, Range } //单选多选和范围选择
+const arrowLeft = "lib/images/arrow_left.png";
+const arrowRight = "lib/images/arrow_right.png";
+
+/// 单选多选和范围选择
+enum CalendarSelectedType { Single, Multiply, Range }
+
+/// 日历显示类型，ListView滚动类型、PageView翻页类型
+enum CalendarDisplayType { ListView, PageView }
 
 class CalendarList extends StatefulWidget {
   /// 日历最早日期
@@ -26,6 +33,9 @@ class CalendarList extends StatefulWidget {
   /// 日历选择模式
   final CalendarSelectedType selectedType;
 
+  /// 日历展示类型
+  final CalendarDisplayType displayType;
+
   /// 日期选中背景颜色样式
   final Color daySelectedColor;
 
@@ -37,6 +47,9 @@ class CalendarList extends StatefulWidget {
 
   /// 周末日期样式
   final Color todayColor;
+
+  /// 是否隐藏月份头部
+  final bool hideMonthHeader;
 
   /// 多选选中日期
   final List<DateTime> selectedDateTimes;
@@ -52,6 +65,8 @@ class CalendarList extends StatefulWidget {
       this.selectedStartDate,
       this.todayColor = Colors.deepOrange,
       this.selectedDateTimes,
+      this.hideMonthHeader = false,
+      this.displayType = CalendarDisplayType.PageView,
       this.selectedEndDate})
       : assert(firstDate != null),
         assert(lastDate != null),
@@ -71,8 +86,11 @@ class _CalendarListState extends State<CalendarList> {
   int yearEnd;
   int monthEnd;
   int count;
-
+  PageController _pageController;
+  int currentMonth;
+  int currentPage;
   List<DateTime> selectedDateTimes = [];
+  String currentYearMonth = "";
 
   @override
   void initState() {
@@ -86,7 +104,199 @@ class _CalendarListState extends State<CalendarList> {
     yearEnd = widget.lastDate.year;
     monthEnd = widget.lastDate.month;
     count = monthEnd - monthStart + (yearEnd - yearStart) * 12 + 1;
+    currentMonth = DateTime.now().month;
+    currentPage =
+        currentMonth - monthStart + (DateTime.now().year - yearStart) * 12;
     selectedDateTimes = this.widget.selectedDateTimes ?? [];
+    _pageController = PageController(initialPage: currentPage);
+    currentYearMonth = "${DateTime.now().year}年${DateTime.now().month}月";
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: this.widget.displayType == CalendarDisplayType.ListView
+            ? _buildListViewCalender()
+            : _buildPageViewCalendar(),
+      ),
+    );
+  }
+
+  Widget _buildListViewCalender() {
+    return Column(
+      children: <Widget>[
+        Container(
+          height: 50,
+          padding: EdgeInsets.only(
+              left: HORIZONTAL_PADDING, right: HORIZONTAL_PADDING),
+          decoration: BoxDecoration(
+            // border: Border.all(width: 3, color: Color(0xffaaaaaa)),
+            // 实现阴影效果
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black12,
+                  offset: Offset(0, 2.0),
+                  blurRadius: 1.0)
+            ],
+          ),
+          child: WeekdayRow(
+            weekendColor: this.widget.weekendColor,
+            workDayColor: this.widget.workDayColor,
+          ),
+        ),
+        // ),
+        Expanded(
+          child: CustomScrollView(
+            slivers: <Widget>[
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    int month = index + monthStart; //月会溢出
+                    DateTime calendarDateTime = DateTime(yearStart, month);
+                    int year = calendarDateTime.year;
+                    int monthNew = calendarDateTime.month; //重新获取加法之后的月份
+
+                    List<String> monthNames = [];
+                    for (int i = 1; i < 13; i++) {
+                      monthNames.add("${year}年${i}月");
+                    }
+                    return MonthView(
+                      selectedDateTimes: selectedDateTimes,
+                      daySelectedColor: this.widget.daySelectedColor,
+                      selectedType: this.widget.selectedType,
+                      context: context,
+                      year: year,
+                      month: monthNew,
+                      monthNames: monthNames,
+                      padding: HORIZONTAL_PADDING,
+                      spacing: 5,
+                      dateTimeStart: selectStartTime,
+                      dateTimeEnd: selectEndTime,
+                      todayColor: this.widget.todayColor,
+                      onSelectDayRang: (dateTime) =>
+                          onSelectDayChanged(dateTime),
+                    );
+                  },
+                  childCount: count,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPageViewCalendar() {
+    return Column(
+      children: [
+        Container(
+          height: 50,
+          padding: EdgeInsets.only(
+              left: HORIZONTAL_PADDING, right: HORIZONTAL_PADDING),
+          decoration: BoxDecoration(
+            // border: Border.all(width: 3, color: Color(0xffaaaaaa)),
+            // 实现阴影效果
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black12,
+                  offset: Offset(0, 2.0),
+                  blurRadius: 1.0)
+            ],
+          ),
+          child: WeekdayRow(
+            weekendColor: this.widget.weekendColor,
+            workDayColor: this.widget.workDayColor,
+          ),
+        ),
+        Container(
+            height: 50,
+            padding: EdgeInsets.only(
+                left: HORIZONTAL_PADDING, right: HORIZONTAL_PADDING),
+            color: Colors.white,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    if (currentPage - 1 >= 0) {
+                      _pageController.previousPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.ease);
+                    }
+                  },
+                  child: Image.asset(arrowLeft),
+                ),
+                Text(
+                  "$currentYearMonth",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    if (currentPage + 1 < count) {
+                      _pageController.nextPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.ease);
+                    }
+                  },
+                  child: Image.asset(arrowRight),
+                ),
+              ],
+            )),
+        Expanded(
+          child: PageView.builder(
+            physics: ClampingScrollPhysics(),
+            controller: _pageController,
+            onPageChanged: (index) {
+              int month = index + monthStart;
+              DateTime calendarDateTime = DateTime(yearStart, month);
+              int year = calendarDateTime.year;
+              int monthNew = calendarDateTime.month;
+              setState(() {
+                currentPage = _pageController.page.ceil();
+                currentYearMonth = "${year}年${monthNew}月";
+              });
+            },
+            itemCount: count,
+            itemBuilder: (BuildContext context, int index) {
+              int month = index + monthStart;
+              DateTime calendarDateTime = DateTime(yearStart, month);
+              int year = calendarDateTime.year;
+              int monthNew = calendarDateTime.month; //重新获取加法之后的月份
+              List<String> monthNames = [];
+              return MonthView(
+                selectedDateTimes: selectedDateTimes,
+                daySelectedColor: this.widget.daySelectedColor,
+                selectedType: this.widget.selectedType,
+                context: context,
+                hideMonthHeader: true,
+                year: year,
+                month: monthNew,
+                monthNames: monthNames,
+                padding: HORIZONTAL_PADDING,
+                spacing: 5,
+                dateTimeStart: selectStartTime,
+                dateTimeEnd: selectEndTime,
+                todayColor: this.widget.todayColor,
+                onSelectDayRang: (dateTime) => onSelectDayChanged(dateTime),
+              );
+            },
+          ),
+        )
+      ],
+    );
   }
 
   // 选项处理回调
@@ -158,84 +368,5 @@ class _CalendarListState extends State<CalendarList> {
       selectStartTime = start;
       selectEndTime = end;
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: <Widget>[
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 55.0,
-              child: Container(
-                padding: EdgeInsets.only(
-                    left: HORIZONTAL_PADDING, right: HORIZONTAL_PADDING),
-                decoration: BoxDecoration(
-                  // border: Border.all(width: 3, color: Color(0xffaaaaaa)),
-                  // 实现阴影效果
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black12,
-                        offset: Offset(0, 2.0),
-                        blurRadius: 1.0)
-                  ],
-                ),
-                child: WeekdayRow(
-                  weekendColor: this.widget.weekendColor,
-                  workDayColor: this.widget.workDayColor,
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 55.0, bottom: 50.0),
-              child: CustomScrollView(
-                slivers: <Widget>[
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
-                        int month = index + monthStart;
-                        DateTime calendarDateTime = DateTime(yearStart, month);
-                        return _getMonthView(calendarDateTime);
-                      },
-                      childCount: count,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _getMonthView(DateTime dateTime) {
-    int year = dateTime.year;
-    int month = dateTime.month;
-    List<String> monthNames = [];
-    for (int i = 1; i < 13; i++) {
-      monthNames.add("${year}年${i}月");
-    }
-    return MonthView(
-      selectedDateTimes: selectedDateTimes,
-      daySelectedColor: this.widget.daySelectedColor,
-      selectedType: this.widget.selectedType,
-      context: context,
-      year: year,
-      month: month,
-      monthNames: monthNames,
-      padding: HORIZONTAL_PADDING,
-      spacing: 5,
-      dateTimeStart: selectStartTime,
-      dateTimeEnd: selectEndTime,
-      todayColor: this.widget.todayColor,
-      onSelectDayRang: (dateTime) => onSelectDayChanged(dateTime),
-    );
   }
 }

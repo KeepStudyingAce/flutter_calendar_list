@@ -1,3 +1,4 @@
+感谢[https://github.com/heruijun/flutter_calendar_list],在其代码基础上做的修改!!!
 # Flutter实现一个酷炫带动画的列表型多选日历组件
 
 由于项目需要，用Flutter重构了之前用Android做过的日历组件，整体效果感觉不错，流畅度甚至超过原来的，这里需要提一下官网的做法，如下：
@@ -16,7 +17,7 @@
 
 官方的做法就是showDatePicker实现的，支持MD和IOS的风格，但据我了解，只支持单选，不支持开始和结束日期的区间选择，体验也与我需要的效果不一致，所以经过考虑之后，还是决定自己写一个。
 
-## 先上效果图
+## 先上效果图 旧版本图，待更新
 ![](https://raw.githubusercontent.com/heruijun/flutter_calendar_list/master/calendar.gif)
 
 ## 实现的功能和需求
@@ -48,27 +49,6 @@ return CalendarList(
 ```
 
 其中firstDate和lastDate是选择的月份列表，本例中，从2019年8月开始算起，结束时间是2020年8月，然后又有2个参数selectedStartDate和selectedEndDate，这2个参数是给定的默认选中区间，本例中默认选中了2019/8/28和2019/9/2之间的所有日期，默认选中一般是记录用户上次选中的结果。onSelectFinish就是选完之后的回调，以上这些参数是根据实际业务可以灵活设置的。
-
-## 底部弹出方式的日期方式
-这块其实很简单，CalendarList本身就支持从底部滑出，调用的方法是showModalBottomSheet，代码如下：
-
-```
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 600.0,
-          child: FullScreenDemo(),
-        );
-      },
-    ).then((result) {
-      setState(() {
-        selectResult2 = result;
-      });
-    });
-```
-
-其中日历放在了FullScreenDemo里，通过Container包一层设置一个高度，然后就可以通过showModalBottomSheet方法从底部滑出。
 
 ## CalendarList滚动列表绘制
 通过上面的讲述，我们了解了如何使用CalendarList组件，那么我们看看源码里面具体做了哪些。笔者在实现该功能时把MonthView作为SliverList的一个build item。放置到CustomScrollView的Sliver里面，这里复习一下，Sliver的作用其实就是“粘合剂”的作用，把多个组件粘合起来形成一个滚动区域，布局如下：
@@ -253,21 +233,9 @@ onSelectDayChanged其实就是对用户点击DayNumber行为的事件回调，�
 
 ## 可以改善的地方
 1. 国际化支持
-2. 自定义颜色传入
-3. 后续发布到Flutter Pub
+2. 后续发布到Flutter Pub
 
 ## 代码地址
 本例中相关的代码放在
 
-github地址：[https://github.com/heruijun/flutter_calendar_list](https://github.com/heruijun/flutter_calendar_list)
-
-此例已经作为补充内容添加至我的《Flutter从0到1构建大前端应用》一书的源码中，是一个知识点比较多的综合案例，再版时会根据读者意见考虑加入到书中讲解。
-
-## 新书推荐
-大家好，下面插播一条广告，我是《Flutter从0到1构建大前端应用》的作者，感谢已经购买的读者，此书属于入门上手的书籍，以简单明了的代码实例说明问题，也便于读者查阅相关内容。
-
-![](https://img14.360buyimg.com/n1/jfs/t1/55763/28/4089/173115/5d1d7041E7d6bc656/d681b55e89bac6f6.jpg)
-
-从Flutter基础开始讲解，结合实际案例，让读者逐步掌握Flutter的核心内容，实战项目篇又通过2个实战项目让读者除了掌握Flutter相关知识之外，对node、mongo，vue做了一些介绍，可以让更多的读者拥抱目前最火的大前端技术。
-
-京东购买链接：[https://item.jd.com/12546599.html](https://item.jd.com/12546599.html)
+github地址：[https://github.com/KeepStudyingAce/flutter_calendar_list]

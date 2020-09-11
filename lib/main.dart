@@ -38,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 1.0,
         title: Text("列表型日历"),
       ),
       body: Column(
@@ -57,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage>
             CalendarList(
               weekendColor: Colors.amber,
               selectedType: CalendarSelectedType.Single,
+              displayType: CalendarDisplayType.PageView,
               firstDate: DateTime(2020, 8),
               lastDate: DateTime(2021, 12),
               onSelectFinish: (List<DateTime> dates) {
@@ -69,6 +71,7 @@ class _MyHomePageState extends State<MyHomePage>
               weekendColor: Colors.amber,
               selectedType: CalendarSelectedType.Multiply,
               firstDate: DateTime(2020, 8),
+              displayType: CalendarDisplayType.ListView,
               lastDate: DateTime(2021, 12),
               onSelectFinish: (List<DateTime> dates) {
                 List<DateTime> result = <DateTime>[];
@@ -79,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage>
             CalendarList(
               weekendColor: Colors.amber,
               selectedType: CalendarSelectedType.Range,
+              displayType: CalendarDisplayType.ListView,
               firstDate: DateTime(2020, 8),
               lastDate: DateTime(2021, 12),
               onSelectFinish: (List<DateTime> dates) {

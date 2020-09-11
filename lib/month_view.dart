@@ -20,6 +20,7 @@ class MonthView extends StatefulWidget {
     this.todayColor,
     this.daySelectedColor = Colors.blue,
     this.monthNames,
+    this.hideMonthHeader = false,
     this.selectedDateTimes = const [],
     this.selectedType = CalendarSelectedType.Range,
   });
@@ -37,6 +38,9 @@ class MonthView extends StatefulWidget {
 
   ///月与月之间的间距
   final double spacing;
+
+  ///是否隐藏月份头部
+  final bool hideMonthHeader;
 
   ///今日背景颜色
   final Color todayColor;
@@ -214,10 +218,12 @@ class _MonthViewState extends State<MonthView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              MonthTitle(
-                month: widget.month,
-                monthNames: widget.monthNames,
-              ),
+              !this.widget.hideMonthHeader
+                  ? MonthTitle(
+                      month: widget.month,
+                      monthNames: widget.monthNames,
+                    )
+                  : SizedBox(),
               SizedBox(height: 5),
               Stack(
                 children: [
