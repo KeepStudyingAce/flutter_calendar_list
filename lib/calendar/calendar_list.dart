@@ -54,6 +54,9 @@ class CalendarList extends StatefulWidget {
   /// 今天日期样式
   final Color todayColor;
 
+  /// 是否显示今天
+  final bool showToday;
+
   /// 是否隐藏月份头部
   final bool hideMonthHeader;
 
@@ -71,6 +74,7 @@ class CalendarList extends StatefulWidget {
       this.onSelectFinish,
       this.dayInterval = 0,
       this.dayTimes = 0,
+      this.showToday = true,
       this.weekendColor = Colors.black,
       this.workDayColor = Colors.black,
       this.daySelectedColor = Colors.blue,
@@ -194,6 +198,7 @@ class _CalendarListState extends State<CalendarList> {
                       monthNames.add("${year}年${i}月");
                     }
                     return MonthView(
+                      showToday: this.widget.showToday,
                       selectedDateTimes: selectedDateTimes,
                       daySelectedColor: this.widget.daySelectedColor,
                       selectedType: this.widget.selectedType,
@@ -303,6 +308,7 @@ class _CalendarListState extends State<CalendarList> {
               int monthNew = calendarDateTime.month; //重新获取加法之后的月份
               List<String> monthNames = [];
               return MonthView(
+                showToday: this.widget.showToday,
                 selectedDateTimes: selectedDateTimes,
                 daySelectedColor: this.widget.daySelectedColor,
                 selectedType: this.widget.selectedType,

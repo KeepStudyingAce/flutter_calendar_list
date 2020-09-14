@@ -27,7 +27,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with TickerProviderStateMixin<MyHomePage> {
   TabController con;
-  int label;
+  int label = 7;
 
   DateTime temp;
 
@@ -62,10 +62,11 @@ class _MyHomePageState extends State<MyHomePage>
               children: [
                 Expanded(
                   child: CalendarList(
-                    dayInterval: label,
+                    showToday: false,
+                    dayInterval: label ?? 0,
                     dayTimes: 10,
                     weekendColor: Colors.amber,
-                    selectedStartDate: temp ?? DateTime.now(),
+                    selectedStartDate: temp ?? DateTime(2020, 8, 20),
                     selectedType: CalendarSelectedType.Single,
                     displayType: CalendarDisplayType.PageView,
                     firstDate: DateTime(2020, 1),

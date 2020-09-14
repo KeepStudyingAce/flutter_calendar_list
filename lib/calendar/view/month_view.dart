@@ -21,6 +21,7 @@ class MonthView extends StatefulWidget {
     this.daySelectedColor = Colors.blue,
     this.monthNames,
     this.hideMonthHeader = false,
+    this.showToday,
     this.selectedDateTimes = const [],
     this.selectedType = CalendarSelectedType.Range,
   });
@@ -59,6 +60,9 @@ class MonthView extends StatefulWidget {
 
   ///范围选择结束日期
   final DateTime dateTimeEnd;
+
+  /// 是否显示今天
+  final bool showToday;
 
   ///范围日期
   final Function onSelectDayRang;
@@ -145,6 +149,7 @@ class _MonthViewState extends State<MonthView> {
       bool isEnd = false;
       CalendarSelectedType currentType = this.widget.selectedType;
       bool todayInRange = false;
+      bool enabled = false;
       if (widget.dateTimeStart != null && widget.dateTimeEnd != null) {
         isDefaultSelected = (moment.isAtSameMomentAs(widget.dateTimeStart) ||
                     moment.isAtSameMomentAs(widget.dateTimeEnd)) ||
@@ -174,9 +179,14 @@ class _MonthViewState extends State<MonthView> {
         /// 只选择一个的时候还是显示圆形选择框
         currentType = CalendarSelectedType.Single;
       }
+      var nowDateTime = DateTime.now();
+      enabled = !moment.isBefore(
+          DateTime(nowDateTime.year, nowDateTime.month, nowDateTime.day));
 
       dayRowChildren.add(
         DayNumber(
+          showToday: widget.showToday,
+          enabled: enabled,
           isOtherSelected: isOtherSelected,
           daySelectedColor: this.widget.daySelectedColor,
           selectedType: currentType,

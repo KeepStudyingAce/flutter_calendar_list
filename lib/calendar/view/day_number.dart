@@ -13,7 +13,9 @@ class DayNumber extends StatefulWidget {
       this.isOtherSelected = false,
       this.todayColor = Colors.blue,
       this.isFirst = false,
+      this.enabled = true,
       this.isEnd = false,
+      this.showToday = true,
       this.todayInRange = false,
       this.selectedType = CalendarSelectedType.Range});
 
@@ -29,6 +31,9 @@ class DayNumber extends StatefulWidget {
 
   /// 是否是今天
   final bool isToday;
+
+  /// 是否可以选中
+  final bool enabled;
 
   /// 今天颜色
   final Color todayColor;
@@ -51,6 +56,9 @@ class DayNumber extends StatefulWidget {
   /// 范围选择是否包含今天
   final bool todayInRange;
 
+  /// 是否显示今天
+  final bool showToday;
+
   @override
   _DayNumberState createState() => _DayNumberState();
 }
@@ -60,6 +68,7 @@ class _DayNumberState extends State<DayNumber> {
   bool isSelected;
   bool isFirst;
   bool isEnd;
+  bool showToday;
 
   Widget _dayItem() {
     bool isSingle = this.widget.selectedType != CalendarSelectedType.Range;
@@ -73,7 +82,9 @@ class _DayNumberState extends State<DayNumber> {
             ? widget.daySelectedColor
             : (widget.isOtherSelected && widget.day > 0)
                 ? widget.dayOtherSelectedColor
-                : widget.isToday ? widget.todayColor : Colors.transparent,
+                : (widget.isToday && showToday)
+                    ? widget.todayColor
+                    : Colors.transparent,
         borderRadius: (isSingle || (widget.isToday && !widget.todayInRange))
             ? BorderRadius.all(
                 Radius.circular((widget.size - itemMargin * 2) / 2))
@@ -89,10 +100,14 @@ class _DayNumberState extends State<DayNumber> {
               ),
       ),
       child: Text(
-        widget.isToday ? "今" : widget.day < 1 ? '' : widget.day.toString(),
+        (widget.isToday && showToday)
+            ? "今"
+            : widget.day < 1 ? '' : widget.day.toString(),
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: (widget.isToday || isSelected) ? Colors.white : Colors.black87,
+          color: ((widget.isToday && showToday) || isSelected)
+              ? Colors.white
+              : !widget.enabled ? Colors.grey : Colors.black87,
           fontSize: 15.0,
           fontWeight: FontWeight.bold,
         ),
@@ -105,9 +120,14 @@ class _DayNumberState extends State<DayNumber> {
     isSelected = widget.isDefaultSelected;
     isFirst = widget.isFirst;
     isEnd = widget.isEnd;
+    showToday = widget.showToday;
     return widget.day > 0
-        ? InkWell(
-            onTap: () => CalendarNotification(widget.day).dispatch(context),
+        ? GestureDetector(
+            onTap: () {
+              if (widget.enabled) {
+                CalendarNotification(widget.day).dispatch(context);
+              }
+            },
             child: _dayItem())
         : _dayItem();
   }
