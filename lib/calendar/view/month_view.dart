@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/calendar_list.dart';
-import 'package:flutter_calendar/calendar_notification.dart';
+import '../calendar_list.dart';
+import '../utils/calendar_notification.dart';
 
 import 'day_number.dart';
 import 'month_title.dart';
-import 'utils/dates.dart';
-import 'utils/screen_sizes.dart';
+import '../utils/dates.dart';
+import '../utils/screen_sizes.dart';
 
 class MonthView extends StatefulWidget {
   const MonthView({
@@ -140,6 +140,7 @@ class _MonthViewState extends State<MonthView> {
           day > 0) {
         isDefaultSelected = true;
       }
+      bool isOtherSelected = false;
       bool isFirst = false;
       bool isEnd = false;
       CalendarSelectedType currentType = this.widget.selectedType;
@@ -166,6 +167,8 @@ class _MonthViewState extends State<MonthView> {
       } else {
         if (this.widget.selectedType == CalendarSelectedType.Multiply) {
           isDefaultSelected = this.widget.selectedDateTimes.contains(moment);
+        } else if (this.widget.selectedType == CalendarSelectedType.Single) {
+          isOtherSelected = this.widget.selectedDateTimes.contains(moment);
         }
 
         /// 只选择一个的时候还是显示圆形选择框
@@ -174,6 +177,7 @@ class _MonthViewState extends State<MonthView> {
 
       dayRowChildren.add(
         DayNumber(
+          isOtherSelected: isOtherSelected,
           daySelectedColor: this.widget.daySelectedColor,
           selectedType: currentType,
           size: widget.itemWidth,

@@ -2,8 +2,8 @@ library calendar_list;
 
 import 'package:flutter/material.dart';
 
-import 'month_view.dart';
-import 'weekday_row.dart';
+import './view/month_view.dart';
+import './view/weekday_row.dart';
 
 const arrowLeft = "lib/images/arrow_left.png";
 const arrowRight = "lib/images/arrow_right.png";
@@ -21,8 +21,14 @@ class CalendarList extends StatefulWidget {
   /// 日历最晚日期
   final DateTime lastDate;
 
-  /// 日历选中开始日期
+  /// 日历选中开始日期/间隔开始日期
   final DateTime selectedStartDate;
+
+  /// 日历间隔天数
+  final int dayInterval;
+
+  /// 选中天数次数
+  final int dayTimes;
 
   /// 日历选中结束日期
   final DateTime selectedEndDate;
@@ -45,11 +51,14 @@ class CalendarList extends StatefulWidget {
   /// 工作日日期样式
   final Color workDayColor;
 
-  /// 周末日期样式
+  /// 今天日期样式
   final Color todayColor;
 
   /// 是否隐藏月份头部
   final bool hideMonthHeader;
+
+  /// 日历高度
+  final double height;
 
   /// 多选选中日期
   final List<DateTime> selectedDateTimes;
@@ -57,13 +66,16 @@ class CalendarList extends StatefulWidget {
   CalendarList(
       {@required this.firstDate,
       @required this.lastDate,
+      this.height,
       this.selectedType = CalendarSelectedType.Range,
       this.onSelectFinish,
+      this.dayInterval = 0,
+      this.dayTimes = 0,
       this.weekendColor = Colors.black,
       this.workDayColor = Colors.black,
       this.daySelectedColor = Colors.blue,
       this.selectedStartDate,
-      this.todayColor = Colors.deepOrange,
+      this.todayColor = Colors.blue,
       this.selectedDateTimes,
       this.hideMonthHeader = false,
       this.displayType = CalendarDisplayType.PageView,
@@ -119,14 +131,27 @@ class _CalendarListState extends State<CalendarList> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: this.widget.displayType == CalendarDisplayType.ListView
-            ? _buildListViewCalender()
-            : _buildPageViewCalendar(),
-      ),
+    return Container(
+      height: this.widget.height,
+      child: this.widget.displayType == CalendarDisplayType.ListView
+          ? _buildListViewCalender()
+          : _buildPageViewCalendar(),
     );
+  }
+
+  List<DateTime> selectDate() {
+    List<DateTime> listTimes = [];
+    if (this.widget.dayInterval > 0 && this.widget.dayTimes > 0) {
+      listTimes.add(this.widget.selectedStartDate);
+      listTimes.addAll(List.generate(this.widget.dayTimes - 1, (index) {
+        return DateTime(
+            this.widget.selectedStartDate.year,
+            this.widget.selectedStartDate.month,
+            this.widget.selectedStartDate.day +
+                this.widget.dayInterval * (index + 1));
+      }));
+    }
+    return listTimes;
   }
 
   Widget _buildListViewCalender() {
@@ -196,6 +221,7 @@ class _CalendarListState extends State<CalendarList> {
   }
 
   Widget _buildPageViewCalendar() {
+    selectedDateTimes = this.selectDate();
     return Column(
       children: [
         Container(

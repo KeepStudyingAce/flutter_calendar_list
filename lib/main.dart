@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'calendar_list.dart';
+import 'calendar/calendar_list.dart';
 
 void main() => runApp(new MyApp());
 
@@ -27,10 +27,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with TickerProviderStateMixin<MyHomePage> {
   TabController con;
+  int label;
+
+  DateTime temp;
 
   @override
   void initState() {
-    con = TabController(length: 3, vsync: this);
+    con = TabController(length: 4, vsync: this);
     super.initState();
   }
 
@@ -45,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage>
         children: [
           TabBar(
             controller: con,
-            tabs: ["单选", "多选", "范围选择"].map((e) {
+            tabs: ["间隔选择", "单选", "多选", "范围选择"].map((e) {
               return Tab(
                 text: e,
               );
@@ -55,11 +58,58 @@ class _MyHomePageState extends State<MyHomePage>
           ),
           Expanded(
               child: TabBarView(controller: con, children: [
+            Column(
+              children: [
+                Expanded(
+                  child: CalendarList(
+                    dayInterval: label,
+                    dayTimes: 10,
+                    weekendColor: Colors.amber,
+                    selectedStartDate: temp ?? DateTime.now(),
+                    selectedType: CalendarSelectedType.Single,
+                    displayType: CalendarDisplayType.PageView,
+                    firstDate: DateTime(2020, 1),
+                    lastDate: DateTime(2021, 12),
+                    onSelectFinish: (List<DateTime> dates) {
+                      List<DateTime> result = <DateTime>[];
+                      result.addAll(dates);
+                      setState(() {
+                        temp = result.first;
+                      });
+                      print("间隔单选中日期$result");
+                    },
+                  ),
+                ),
+                Text("间隔：" + (label.toString() ?? "")),
+                Wrap(
+                  children: List.generate(6, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          label = index;
+                        });
+                      },
+                      child: Container(
+                        color: Colors.amber,
+                        width: 40,
+                        height: 30,
+                        child: Center(
+                          child: Text(
+                            index.toString(),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                SizedBox(height: 20),
+              ],
+            ),
             CalendarList(
               weekendColor: Colors.amber,
               selectedType: CalendarSelectedType.Single,
               displayType: CalendarDisplayType.PageView,
-              firstDate: DateTime(2020, 8),
+              firstDate: DateTime(2020, 1),
               lastDate: DateTime(2021, 12),
               onSelectFinish: (List<DateTime> dates) {
                 List<DateTime> result = <DateTime>[];

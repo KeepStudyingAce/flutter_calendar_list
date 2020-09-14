@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'utils/dates.dart';
+import '../utils/dates.dart';
 
 class MonthTitle extends StatelessWidget {
   const MonthTitle({

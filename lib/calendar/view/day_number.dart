@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/calendar_list.dart';
-import 'package:flutter_calendar/calendar_notification.dart';
+import '../calendar_list.dart';
+import '../utils/calendar_notification.dart';
 
 class DayNumber extends StatefulWidget {
   const DayNumber(
@@ -8,23 +8,48 @@ class DayNumber extends StatefulWidget {
       @required this.day,
       @required this.isDefaultSelected,
       this.daySelectedColor = Colors.blue,
+      this.dayOtherSelectedColor = Colors.orangeAccent,
       this.isToday,
+      this.isOtherSelected = false,
       this.todayColor = Colors.blue,
       this.isFirst = false,
       this.isEnd = false,
       this.todayInRange = false,
       this.selectedType = CalendarSelectedType.Range});
+
+  /// 日期选择模式
   final CalendarSelectedType selectedType;
   final int day;
+
+  /// 选中日期的背景色
   final Color daySelectedColor;
+
+  /// 其他选中日期的背景色
+  final Color dayOtherSelectedColor;
+
+  /// 是否是今天
   final bool isToday;
-  final bool todayInRange;
+
+  /// 今天颜色
   final Color todayColor;
+
+  /// 大小
   final double size;
+
+  /// 是否选中
   final bool isDefaultSelected;
 
+  /// 是否根据日期选中
+  final bool isOtherSelected;
+  /*
+  * 范围选择模式
+  */
+  /// 范围选择模式时的第一个和最后一个
   final bool isFirst;
   final bool isEnd;
+
+  /// 范围选择是否包含今天
+  final bool todayInRange;
 
   @override
   _DayNumberState createState() => _DayNumberState();
@@ -46,7 +71,9 @@ class _DayNumberState extends State<DayNumber> {
       decoration: BoxDecoration(
         color: (isSelected && widget.day > 0)
             ? widget.daySelectedColor
-            : widget.isToday ? widget.todayColor : Colors.transparent,
+            : (widget.isOtherSelected && widget.day > 0)
+                ? widget.dayOtherSelectedColor
+                : widget.isToday ? widget.todayColor : Colors.transparent,
         borderRadius: (isSingle || (widget.isToday && !widget.todayInRange))
             ? BorderRadius.all(
                 Radius.circular((widget.size - itemMargin * 2) / 2))
